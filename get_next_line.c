@@ -1,15 +1,19 @@
 #include "get_next_line.h"
 #include <stdio.h>
-#include <unistd.h>
 
 /* File placeholder */
 char    *get_next_line(int fd)
 {
-    static char    buff[20];
-    size_t  num;
+    static char    buff[BUFFER_SIZE];
+    int		len;
+	size_t  num;
 
     num = sizeof(buff);
-    read(fd, buff, num);
-
+    len = read(fd, buff, num);
+	if (len == -1)
+	{
+		printf("Error");
+		return (0);
+	}
     return (buff);
 }
