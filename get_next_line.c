@@ -2,22 +2,49 @@
 #include <stdio.h>
 #include <string.h>
 
-char	check_buffer(char *buff)
+char	*output_buffer(int start, int index)
+{
+	char	*output;
+	int		textlen;
+
+
+
+	textlen = start - index; //content to copy in buff
+
+	output = (char *)malloc(textlen);
+	if (output == NULL)
+		return (NULL);
+	memcpy(output,buff[index],textlen);//copies buff content to output
+//	bzero(buff, textlen); //erase buff content
+	return (output);//returns output
+}
+char	check_buffer(int chread)
+//check if buff is fully filled or contains \n or EOF
 {
 	int	i;
+	int	start;
 
 	i = 0;
-	if (buff[i] == '\n')
-		return ('N');
-	else if (buff[i] == '\0')
-		return ('E');
-	while(i < BUFFER_SIZE)
+	start = 0;
+	while(i < chread) //only iterate through chars read 
 	{
-		if (buff[i] == '\n')
-			return ('L');
+		if (buff[i] == '\n') // newline
+		{
+			output_buffer(start, i);
+			start = i;
+		}
+		else if (buff[i] == '\0') // EOF
+		{
+			output_buffer(start, i);
+			start = i;
+		}
+		else //full buffer
+		{
+			output_buffer(start, i);
+		}
 		i++;
 	}
-	return ('B');
+	return ('B'); //what to return?
 }
 
 void	save_buffer(char *buff)
@@ -39,25 +66,22 @@ void	save_buffer(char *buff)
 char	*get_next_line(int fd)
 {
 	static char		buff[BUFFER_SIZE];
-	int				textlen;
+	int				chread;
 	int				space;
-	char			flag;
+	int				index; //keeps track location of newline
 
+	index = 0;
 	space = BUFFER_SIZE;
-	bzero(buff, space);
-	textlen = read(fd, buff, BUFFER_SIZE);
-	flag = check_buffer(buff);
-	printf("Flag = %c, Textlen = %d\n", flag, textlen);
-	if (flag == 'B') //text > buffer size
-		save_buffer(buff);
-	else if (flag == 'E') //EOF reached
-		return (NULL);	
-	else if (flag == 'N')
+	//check ptr value, if 0<ptr<buffersize, buffer has value sent to output_buffer function
+	//if (index != 0)
+	//	output_buffer(index);
+	chread = 1; //seed value
+	while (chread != 0)
 	{
-		bzero(buff,space);
-		memset(buff, '\n', 1);
+		chread = read(fd, buff, BUFFER_SIZE); // read into buff
+		check_buffer(chread); // check buff for /n, EOF 
 	}
-//	else if (flag == 'L')
+	printf("Char read = %d\n", chread);
 
 	return (buff);
 }
