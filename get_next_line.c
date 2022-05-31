@@ -1,8 +1,6 @@
 #include "get_next_line.h"
-#include <stdio.h>
-#include <string.h>
 
-char	*output_buffer(int start, int index)
+/*char	*output_buffer(int start, int index)
 {
 	char	*output;
 	int		textlen;
@@ -15,73 +13,59 @@ char	*output_buffer(int start, int index)
 	if (output == NULL)
 		return (NULL);
 	memcpy(output,buff[index],textlen);//copies buff content to output
-//	bzero(buff, textlen); //erase buff content
 	return (output);//returns output
-}
-char	check_buffer(int chread)
-//check if buff is fully filled or contains \n or EOF
-{
-	int	i;
-	int	start;
-
-	i = 0;
-	start = 0;
-	while(i < chread) //only iterate through chars read 
-	{
-		if (buff[i] == '\n') // newline
-		{
-			output_buffer(start, i);
-			start = i;
-		}
-		else if (buff[i] == '\0') // EOF
-		{
-			output_buffer(start, i);
-			start = i;
-		}
-		else //full buffer
-		{
-			output_buffer(start, i);
-		}
-		i++;
-	}
-	return ('B'); //what to return?
-}
-
-void	save_buffer(char *buff)
-{
-	printf("string %s", buff);
-}
-
-/*char	*fill_buffer(int fd)
-{
-	int		textlen;
-
-	printf("Before Textlen %d Buff %s\n", textlen, buff);
-	textlen = read(fd, buff, BUFFER_SIZE);
-	printf("After Textlen %d Buff %s\n", textlen, buff);
-	bzero(buff, space);
-	return (buff);
 } */
+
+void	check_buffer(char *output, char *str_store)
+//check if buff is fully filled or contains \n or EOF using strchr
+{
+	char	*ptr; //ptr to newline location
+
+	ptr = ft_strchr(str_store,'\n');
+	printf("after strcr");
+	if (ptr != 0)
+	{
+		printf("before substr");
+		output = ft_substr(str_store, 0, (str_store - ptr));
+		printf("after substr");
+	}
+	else
+	{
+		output = str_store;
+	}
+}
+
+int	read_buffer(int fd, char **buff, int *chread)
+{
+	*chread = read(fd, *buff, BUFFER_SIZE); 
+	buff[*chread] = '\0';
+	return (*chread);
+}
 
 char	*get_next_line(int fd)
 {
-	static char		buff[BUFFER_SIZE];
-	int				chread;
-	int				space;
-	int				index; //keeps track location of newline
+	char		*buff;
+	int			chread;
+	int			index;
+	char		*output; // output string to return 
+	static char	*str_store; // place to store output to manipulate.
+	/* str_store is static so will be accessible for subsequent fn call */
 
 	index = 0;
-	space = BUFFER_SIZE;
-	//check ptr value, if 0<ptr<buffersize, buffer has value sent to output_buffer function
-	//if (index != 0)
-	//	output_buffer(index);
-	chread = 1; //seed value
-	while (chread != 0)
-	{
-		chread = read(fd, buff, BUFFER_SIZE); // read into buff
-		check_buffer(chread); // check buff for /n, EOF 
-	}
-	printf("Char read = %d\n", chread);
+	chread = 1; //seed value	
+	buff = (char *)malloc(BUFFER_SIZE + 1); 
+	if (buff == NULL)
+		return (NULL);	
+	if (fd < 0 || (read(fd,buff,0) == -1)) // read(count = 0) for error checking 
+		return (NULL);
 
-	return (buff);
+	while (read_buffer(fd, &buff, &chread) != 0)
+	{
+		str_store = buff;
+		index = index + 1;
+		printf("Cycle = %d Chars read = %d\n", index, chread);
+		check_buffer(output, str_store);
+		printf("Afer");
+	}
+	return (output);
 }
