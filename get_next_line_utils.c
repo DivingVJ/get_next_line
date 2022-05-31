@@ -12,6 +12,18 @@ size_t	ft_strlen(const char *str)
 	return (count);
 }
 
+/* strlen - returns number of character in a string before \n */
+/* Cannot be protected, will cause compile error (test agaim) */
+size_t	ft_linelen(const char *str)
+{
+	size_t	count;
+
+	count = 0;
+	while (str[count] != '\n' && str[count] != '\0')
+		count++;
+	return (count);
+}
+
 /* substr - returns pointer to substring from start, length of len */
 /* Protected if str is NULL. Checks if start & len dont go beyond str */
 char	*ft_substr(char const *str, unsigned int start, size_t len)
