@@ -4,8 +4,6 @@
 # include <fcntl.h>
 # include <unistd.h>
 # include <stdlib.h>
-# include <stdio.h> //printf usage!
-# include <string.h>
 
 char	*get_next_line(int fd);
 
