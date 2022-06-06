@@ -12,7 +12,6 @@ size_t	ft_strlen(const char *str)
 	return (count);
 }
 
-
 /* substr - returns pointer to substring from start, length of len */
 /* Protected if str is NULL. Checks if start & len dont go beyond str */
 char	*ft_substr(char const *str, unsigned int start, size_t len)
@@ -136,61 +135,4 @@ char	*ft_strdup(const char *src)
 	ft_memcpy(dup, src, size);
 	dup[size] = '\0';
 	return (dup);
-}
-
-void	*ft_calloc(size_t num, size_t size)
-{
-	size_t	i;
-	char	*ptr;
-
-	i = 0;
-	ptr = (char *)malloc(num * size);
-	if (ptr == NULL)
-		return (NULL);
-	while (i < num * size)
-	{
-		ptr[i] = 0;
-		i++;
-	}
-	return ((void *)ptr);
-}
-
-static void	copy_forward(char *dest, const char *src, size_t n)
-{
-	size_t	i;
-
-	i = 0;
-	while (n > i)
-	{
-		n--;
-		dest[n] = src[n];
-	}	
-}
-
-static void	copy_backward(char *dest, const char *src, size_t n)
-{
-	size_t	i;
-
-	i = 0;
-	while (i < n)
-	{
-		dest[i] = src[i];
-		i++;
-	}	
-}
-
-void	*ft_memmove(void *dest, const void *src, size_t n)
-{
-	char		*destination;
-	const char	*source;
-
-	if (dest == src || n == 0)
-		return (dest);
-	destination = (char *)dest;
-	source = (const char *)src;
-	if (destination > source)
-		copy_forward(destination, source, n);
-	else if (destination < source)
-		copy_backward(destination, source, n);
-	return (destination);
 }
