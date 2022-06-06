@@ -32,24 +32,20 @@ char	*check_line(char **str_store)
 	return (ret);
 }
 
-char	*read_buffer(int fd, char *str_store)
+char	*combine_buffer(int fd, char *buff, char *str_store)
 {
 	int		chread;
-	char	*buff;
-	char	*temp;
 	int		newline;
+	char	*temp;
 
-	newline = 0;
-	buff = malloc(sizeof(char) * (BUFFER_SIZE + 1));
-	if (buff == NULL)
-		return (NULL);
 	chread = 1;
+	newline = 0;
 	while (chread != 0 && (newline != 1))
 	{
 		chread = read(fd, buff, BUFFER_SIZE);
 		if (chread == -1)
 		{
-			free(buff);
+			free_mem(&buff);
 			return (NULL);
 		}
 		buff[chread] = '\0';
@@ -65,6 +61,17 @@ char	*read_buffer(int fd, char *str_store)
 	return (str_store);
 }
 
+char	*allocate_buffer(int fd, char *str_store)
+{
+	char	*buff;
+
+	buff = malloc(sizeof(char) * (BUFFER_SIZE + 1));
+	if (buff == NULL)
+		return (NULL);
+	str_store = combine_buffer(fd, buff, str_store);
+	return (str_store);
+}
+
 char	*get_next_line(int fd)
 {
 	static char	*str_store;
@@ -72,7 +79,7 @@ char	*get_next_line(int fd)
 
 	if (fd < 0)
 		return (NULL);
-	str_store = read_buffer(fd, str_store);
+	str_store = allocate_buffer(fd, str_store);
 	if (!str_store)
 		return (NULL);
 	output = check_line(&str_store);
