@@ -1,49 +1,81 @@
 #include "get_next_line.h"
 
-void	check_buffer(char **str_store)
-//check if buff is fully filled or contains \n or EOF using strchr
+char	*check_line(char **str_store)
 {
-	int		length;
-
-	length = ft_linelen(*str_store);
-	printf("Len = %d", length);
-/*	if (*ptr != '\0')
+	char	*str;
+	char	*ret;
+	char	*temp;
+	int		lenline;
+	int		lenremainder;
+ 
+	if (!*str_store[0])
 	{
-		*output = ft_substr(*str_store, 0, length);
+		return (NULL);
 	}
-	else
-	{
-		output = str_store;
-	} */
+	str = ft_strchr(*str_store, '\n');
+	lenremainder = ft_strlen(str + 1);
+	lenline = ft_strlen(*str_store) - lenremainder;
+	printf("len= %d : %d\n", lenline, lenremainder);
+	temp = *str_store;
+	ret = ft_substr(temp, 0, lenline);
+//	printf("ret = %s\n", ret);
+//edit flag incude \n in lenline
+	*str_store = ft_substr(temp, lenline, lenremainder);
+//	printf("new str_store= %s\n", *str_store);
+	free(temp);
+	return (ret);
 }
 
-int	read_buffer(int fd, char **buff, int *chread)
+char	*read_buffer(int fd, char *str_store)
 {
-	*chread = read(fd, *buff, BUFFER_SIZE); 
-	buff[*chread] = '\0';
-	return (*chread);
+	int		chread;
+	char	*buff;
+	char	*temp;
+
+	buff = malloc(sizeof(char) * (BUFFER_SIZE + 1)); 
+	if (buff == NULL)
+		return (NULL);
+//	if (read(fd,buff,0) == -1)
+//		return (NULL);
+	chread = 1;
+	while (chread != 0 && (!ft_strchr(buff, '\n')))
+	{
+		chread = read(fd, buff, BUFFER_SIZE);
+		if (chread == -1)
+			{
+				free(buff);
+				return (NULL);
+			}
+		buff[chread] = '\0';
+		if (!str_store)
+			str_store = ft_strdup("");
+		printf("Chread : Buff : store \n %d : %s : %s\n", chread, buff, str_store);			
+		temp = str_store;
+//		printf("temp= %s\n", temp);
+		str_store = ft_strjoin(temp, buff);
+//		printf("afterjoin %s\n", str_store);
+		free(temp);		
+	}
+	free(buff);
+//	buff = NULL; to check
+//	printf("in %s\n", str_store);	
+	return (str_store);
 }
 
 char	*get_next_line(int fd)
 {
-	char		*buff;
-	int			chread;
-//	char		*output; // output string to return 
-	static char	*str_store; // place to store output to manipulate.
-	/* str_store is static so will be accessible for subsequent fn call */
-
-	chread = 1; //seed value	
-	buff = (char *)malloc(BUFFER_SIZE + 1); 
-	if (buff == NULL)
-		return (NULL);	
-	if (fd < 0 || (read(fd,buff,0) == -1)) // read(count = 0) for error checking 
+	static char	*str_store;
+	char		*output;
+	
+	if (fd < 0) 
 		return (NULL);
-
-	while (read_buffer(fd, &buff, &chread) != 0)
-	{
-		str_store = buff;
-		check_buffer(&str_store);
-		printf("Afer");
-	}
-	return (str_store);
+//	printf("previous str_store= %s\n", str_store);
+	str_store = read_buffer(fd, str_store);
+//	printf("after readbuff %s: %ld\n", str_store, ft_strlen(str_store));
+	if (!str_store)
+		return (NULL);
+	output = check_line(&str_store);
+	return (output);
 }
+// valgrind -s --track-origins=yes --tool=memcheck --leak-check=full --show-leak-kinds=all ./a.out 
+// valgrind  --tool=memcheck --leak-check=full --show-leak-kinds=all ./a.out 

@@ -12,17 +12,6 @@ size_t	ft_strlen(const char *str)
 	return (count);
 }
 
-/* strlen - returns number of character in a string before \n */
-/* Cannot be protected, will cause compile error (test agaim) */
-size_t	ft_linelen(const char *str)
-{
-	size_t	count;
-
-	count = 0;
-	while (str[count] != '\n' && str[count] != '\0')
-		count++;
-	return (count);
-}
 
 /* substr - returns pointer to substring from start, length of len */
 /* Protected if str is NULL. Checks if start & len dont go beyond str */
@@ -114,4 +103,94 @@ char	*ft_strchr(const char *str, int c)
 		i++;
 	}
 	return (NULL);
+}
+
+void	*ft_memcpy(void *dest, const void *src, size_t n)
+{
+	size_t		i;
+	char		*destination;
+	const char	*source;
+
+	if (dest == NULL && src == NULL)
+		return (NULL);
+	destination = (char *)dest;
+	source = (const char *)src;
+	i = 0;
+	while (i < n)
+	{
+		destination[i] = source[i];
+		i++;
+	}
+	return (destination);
+}
+
+char	*ft_strdup(const char *src)
+{
+	char	*dup;
+	size_t	size;
+
+	size = ft_strlen(src);
+	dup = malloc(size + 1);
+	if (dup == NULL)
+		return (NULL);
+	ft_memcpy(dup, src, size);
+	dup[size] = '\0';
+	return (dup);
+}
+
+void	*ft_calloc(size_t num, size_t size)
+{
+	size_t	i;
+	char	*ptr;
+
+	i = 0;
+	ptr = (char *)malloc(num * size);
+	if (ptr == NULL)
+		return (NULL);
+	while (i < num * size)
+	{
+		ptr[i] = 0;
+		i++;
+	}
+	return ((void *)ptr);
+}
+
+static void	copy_forward(char *dest, const char *src, size_t n)
+{
+	size_t	i;
+
+	i = 0;
+	while (n > i)
+	{
+		n--;
+		dest[n] = src[n];
+	}	
+}
+
+static void	copy_backward(char *dest, const char *src, size_t n)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < n)
+	{
+		dest[i] = src[i];
+		i++;
+	}	
+}
+
+void	*ft_memmove(void *dest, const void *src, size_t n)
+{
+	char		*destination;
+	const char	*source;
+
+	if (dest == src || n == 0)
+		return (dest);
+	destination = (char *)dest;
+	source = (const char *)src;
+	if (destination > source)
+		copy_forward(destination, source, n);
+	else if (destination < source)
+		copy_backward(destination, source, n);
+	return (destination);
 }
